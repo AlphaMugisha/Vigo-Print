@@ -1,35 +1,13 @@
-// --- 5-SECOND CIRCULAR PRELOADER LOGIC ---
+// --- 5-SECOND PRELOADER LOGIC ---
 document.addEventListener("DOMContentLoaded", () => {
     const preloader = document.getElementById('preloader');
-    const progressCircle = document.getElementById('circle-progress');
-    const loadPct = document.getElementById('load-pct');
-
-    let progress = 0;
-    const totalTime = 5000; // 5 Seconds
-    const intervalTime = 50; 
-    const increment = (intervalTime / totalTime) * 100;
-    const circumference = 628; // 2 * pi * radius(100)
-
-    const loadInterval = setInterval(() => {
-        progress += increment;
-        if (progress >= 100) progress = 100;
-
-        // Update Percentage Text
-        loadPct.innerText = `${Math.floor(progress)}%`;
-
-        // Update SVG Ring
-        // Dashoffset goes from 628 (empty) to 0 (full)
-        const offset = circumference - (progress / 100) * circumference;
-        progressCircle.style.strokeDashoffset = offset;
-
-        if (progress === 100) {
-            clearInterval(loadInterval);
-            setTimeout(() => {
-                preloader.classList.add('fade-out');
-                document.body.classList.remove('loading-lock');
-            }, 500); 
-        }
-    }, intervalTime);
+    
+    // The CSS animation takes exactly 5 seconds. 
+    // We remove the preloader right as the bar hits 100%.
+    setTimeout(() => {
+        preloader.classList.add('fade-out');
+        document.body.classList.remove('loading-lock');
+    }, 5000); 
 });
 
 // --- NAVBAR SCROLL EFFECT ---

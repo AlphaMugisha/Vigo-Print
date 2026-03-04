@@ -13,16 +13,20 @@
 <body class="loading-lock">
 
     <div id="preloader">
-        <div class="loader-content">
-            <svg class="loader-svg" width="220" height="220">
-                <circle class="bg-circle" cx="110" cy="110" r="100"></circle>
-                <circle class="progress-circle" id="circle-progress" cx="110" cy="110" r="100"></circle>
-            </svg>
-            
-            <div class="loader-text-box">
-                <div class="loader-logo"><span>VIGO</span> PRINT</div>
-                <span id="load-pct">0%</span>
+        <div class="preloader-content">
+            <div class="logo-float-wrapper">
+                <div class="preloader-logo">
+                    <div class="preloader-logo-inner"><span>VIGO</span> PRINT</div>
+                </div>
             </div>
+            
+            <div class="preloader-progress-wrapper">
+                <div class="preloader-progress-track">
+                    <div class="preloader-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="preloader-text">Warming Up Press...</div>
         </div>
     </div>
 
@@ -41,7 +45,10 @@
     </header>
 
     <section class="hero">
-        <img src="https://images.unsplash.com/photo-1621831718815-5e608dcb4ec7?q=80&w=2000&auto=format&fit=crop" alt="Industrial Printing Press" class="hero-img">
+        <video autoplay loop muted playsinline class="hero-video">
+            <source src="https://cdn.pixabay.com/video/2016/09/21/5361-182956247_large.mp4" type="video/mp4">
+        </video>
+        
         <div class="hero-overlay"></div>
         <div class="hero-content reveal">
             <span class="hero-badge reveal delay-1">ISO Standard Print Facility</span>
