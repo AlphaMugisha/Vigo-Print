@@ -1,0 +1,25 @@
+:root {
+    --admin-navy: #0A192F;
+    --admin-green: #8DC63F;
+    --white: #ffffff;
+    --light-grey: #f4f7f6;
+}
+
+body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--light-grey); margin: 0; padding: 0; }
+.admin-sidebar { width: 250px; height: 100vh; background: var(--admin-navy); position: fixed; color: white; padding: 20px; }
+.admin-main { margin-left: 290px; padding: 40px; }
+.card { background: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; }
+
+h2 { color: var(--admin-navy); margin-top: 0; }
+.form-group { margin-bottom: 20px; }
+label { display: block; font-weight: 600; margin-bottom: 8px; color: #444; }
+input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; }
+textarea { height: 100px; }
+
+.btn-save { 
+    background: var(--admin-green); color: var(--admin-navy); 
+    padding: 12px 25px; border: none; border-radius: 4px; 
+    font-weight: 700; cursor: pointer; transition: 0.3s;
+}
+.btn-save:hover { opacity: 0.9; transform: translateY(-2px); }
+.alert { padding: 15px; background: #d4edda; color: #155724; border-radius: 4px; margin-bottom: 20px; }
