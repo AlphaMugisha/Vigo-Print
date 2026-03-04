@@ -15,10 +15,10 @@
     <div id="preloader">
         <div class="preloader-content">
             <div class="logo-float-wrapper">
-                <div class="preloader-logo">
-                    <div class="preloader-logo-inner"><span>VIGO</span> PRINT</div>
-                </div>
+            <div class="preloader-logo">
+                <div class="preloader-logo-inner">🖨️</div>
             </div>
+        </div>
             
             <div class="preloader-progress-wrapper">
                 <div class="preloader-progress-track">
@@ -35,10 +35,10 @@
             <a href="#" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
             <div class="menu-toggle" id="mobile-toggle"><i class="fas fa-bars"></i></div>
             <nav id="nav-menu">
-                <a href="#services">Services</a>
-                <a href="#about">About Us</a>
-                <a href="#portfolio">Portfolio</a>
-                <a href="#reviews">Reviews</a>
+                <a href="index.php#services">Services</a>
+                <a href="index.php#about">About</a>
+                <a href="index.php#portfolio">Portfolio</a>
+                <a href="contact.php">Contact Us</a>
                 <a href="https://wa.me/250788858358" class="nav-btn">Get a Quote</a>
             </nav>
         </div>
