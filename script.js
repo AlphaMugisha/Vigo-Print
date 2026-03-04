@@ -2,12 +2,16 @@
 document.addEventListener("DOMContentLoaded", () => {
     const preloader = document.getElementById('preloader');
     
-    // The CSS animation takes exactly 5 seconds. 
-    // We remove the preloader right as the bar hits 100%.
-    setTimeout(() => {
-        preloader.classList.add('fade-out');
+    // SAFETY CHECK: Only run this if the preloader actually exists on the page
+    if (preloader) {
+        setTimeout(() => {
+            preloader.classList.add('fade-out');
+            document.body.classList.remove('loading-lock');
+        }, 5000); 
+    } else {
+        // If there is no preloader (like on the contact page), just make sure the body can scroll
         document.body.classList.remove('loading-lock');
-    }, 5000); 
+    }
 });
 
 // --- NAVBAR SCROLL EFFECT ---
