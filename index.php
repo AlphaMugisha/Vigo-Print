@@ -46,7 +46,7 @@
 
     <section class="hero">
         <video autoplay loop muted playsinline class="hero-video">
-            <source src="https://cdn.pixabay.com/video/2016/09/21/5361-182956247_large.mp4" type="video/mp4">
+            <source src="hero-video.mp4" type="video/mp4">
         </video>
         
         <div class="hero-overlay"></div>
