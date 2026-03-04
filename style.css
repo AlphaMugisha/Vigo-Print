@@ -207,3 +207,98 @@ footer { background: var(--primary-dark); color: var(--white); padding: 80px 0 3
     .btn { width: 100%; justify-content: center; }
     .section-header h2 { font-size: 2rem; }
 }
+/* ========================================= */
+/* ===== CREATIVE PRELOADER STYLES =====     */
+/* ========================================= */
+
+body.loading-lock { overflow: hidden; height: 100vh; }
+
+#preloader {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    z-index: 99999; display: flex; align-items: center; justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#preloader.fade-out { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.preloader-content {
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+}
+
+.logo-float-wrapper { animation: preloaderFloat 3s ease-in-out infinite; }
+
+/* Simulates a spinning print roller / die-cut line */
+.preloader-logo {
+    font-size: 1.5rem; width: 130px; height: 130px; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: rgba(10, 25, 47, 0.8); 
+    border: 3px dashed rgba(141, 198, 63, 0.5); 
+    box-shadow: 0 0 20px rgba(141, 198, 63, 0.15), inset 0 0 15px rgba(141, 198, 63, 0.1);
+    animation: preloaderBreathe 2s ease-in-out infinite, spinRoller 12s linear infinite;
+}
+
+/* Counter-spin so the text stays straight while the dashed border spins */
+.preloader-logo-inner {
+    font-weight: 800; letter-spacing: 1px; color: var(--white);
+    animation: counterSpin 12s linear infinite;
+}
+.preloader-logo-inner span { color: var(--accent-green); }
+
+.preloader-text {
+    color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 4px; text-transform: uppercase; font-family: monospace;
+}
+
+/* CMYK Ink Gradient Progress Bar */
+.preloader-progress-wrapper { width: 220px; margin-top: -10px; }
+.preloader-progress-track {
+    width: 100%; height: 4px; background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px; overflow: hidden;
+}
+.preloader-progress-fill {
+    width: 100%; height: 100%;
+    /* Cyan, Magenta, Yellow mixing into Vigo Green */
+    background: linear-gradient(90deg, #00AEEF, #EC008C, #FFF200, var(--accent-green)); 
+    border-radius: 4px; transform-origin: left; transform: scaleX(0); 
+    animation: preloaderBarFill 5s ease-out forwards;
+}
+
+@keyframes preloaderBreathe {
+    0%, 100% { transform: scale(1); border-color: rgba(141, 198, 63, 0.3); }
+    50% { transform: scale(1.08); border-color: rgba(141, 198, 63, 0.8); box-shadow: 0 0 40px rgba(141, 198, 63, 0.4); }
+}
+@keyframes preloaderFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes spinRoller { 100% { transform: rotate(360deg); } }
+@keyframes counterSpin { 100% { transform: rotate(-360deg); } }
+@keyframes preloaderBarFill { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+
+
+/* ========================================= */
+/* ===== HERO & VIDEO STYLES =====           */
+/* ========================================= */
+
+.hero {
+    height: 100vh; min-height: 600px; position: relative; display: flex; align-items: center;
+    justify-content: center; text-align: center; color: white; overflow: hidden; 
+    background: var(--primary-dark);
+}
+
+.hero-video {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; z-index: 0; opacity: 0.5;
+}
+
+.hero-overlay { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+    /* Shifting industrial blue overlay */
+    background: linear-gradient(135deg, rgba(10, 25, 47, 0.9), rgba(23, 42, 69, 0.6), rgba(10, 25, 47, 0.9));
+    background-size: 200% 200%; animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.hero-content { position: relative; z-index: 2; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 5%; }
