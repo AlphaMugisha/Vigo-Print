@@ -193,14 +193,14 @@
                     </div>
                 </div>
                 <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#services">Our Services</a></li>
-                        <li><a href="#about">Company Profile</a></li>
-                        <li><a href="#portfolio">Sample Work</a></li>
-                        <li><a href="#">Upload Artwork File</a></li>
-                    </ul>
-                </div>
+    <h4>Quick Links</h4>
+    <ul>
+        <li><a href="#services">Our Services</a></li>
+        <li><a href="#about">About Us</a></li>
+        <li><a href="#portfolio">Sample Work</a></li>
+        <li><a href="login.php" style="color: var(--accent-green);"><i class="fas fa-lock"></i> Admin Portal</a></li>
+    </ul>
+</div>
                 <div class="footer-contact">
                     <h4>Contact & Visit</h4>
                     <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br>9 KN 59 Street, Nyarugenge<br>Kigali, Rwanda</div></div>
