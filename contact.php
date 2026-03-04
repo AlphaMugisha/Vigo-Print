@@ -115,17 +115,48 @@ if(isset($_POST['submit'])){
 
         <div class="contact-info reveal reveal-right">
             <h3>Direct Contact</h3>
-            <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><strong>Factory</strong><br>9 KN 59 Street, Nyarugenge, Kigali</div></div>
-            <div class="info-item"><i class="fas fa-phone-alt"></i><div><strong>Phone</strong><br>+250 788 858 358</div></div>
+            <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br>9 KN 59 Street, Nyarugenge, Kigali</div></div>
+            <div class="info-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+250 788 858 358</div></div>
+            
             <div class="map-container">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15950.084807490234!2d30.053733!3d-1.944111!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dca4294025f8d3%3A0xc3f6087968e7f1!2sNyarugenge%2C%20Kigali!5e0!3m2!1sen!2srw!4v1709500000000!5m2!1sen!2srw" allowfullscreen="" loading="lazy"></iframe>
+                <iframe src="https://www.google.com/maps/search/vigo+print/@-1.9666298,30.1011831,15z?entry=ttu&g_ep=EgoyMDI2MDMwMS4xIKXMDSoASAFQAw%3D%3D" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
     </section>
 
-    <footer>
-        <div class="container text-center">
-            <div class="footer-bottom">© <?php echo date("Y"); ?> VIGO PRINT. All Rights Reserved.</div>
+    <footer class="reveal">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <a href="index.php" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
+                    <p>Rwanda's leading industrial printing facility, combining advanced European pre-press technology with high-volume offset printing capacity.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-x-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.php#services">Our Services</a></li>
+                        <li><a href="index.php#about">Company Profile</a></li>
+                        <li><a href="index.php#portfolio">Sample Work</a></li>
+                        <li><a href="contact.php">Request Quote</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact & Visit</h4>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Factory Location</strong><br>9 KN 59 Street, Nyarugenge<br>Kigali, Rwanda</div></div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+250 788 858 358</div></div>
+                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Hours</strong><br>Mon - Sat: 8:00 AM - 6:00 PM</div></div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">&copy; <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
         </div>
     </footer>
 
