@@ -69,6 +69,7 @@ if(isset($_POST['submit'])){
             <a href="index.php" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
             <div class="menu-toggle" id="mobile-toggle"><i class="fas fa-bars"></i></div>
             <nav id="nav-menu">
+                <a href="index.php">Home</a>
                 <a href="index.php#services">Services</a>
                 <a href="index.php#about">About Us</a>
                 <a href="index.php#portfolio">Portfolio</a>
