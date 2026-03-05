@@ -2,9 +2,9 @@
 // includes/db.php
 
 $host = 'localhost';
-$dbname = 'print_db'; // The name of the database we will create
-$username = 'root';        // Default XAMPP username
-$password = '';            // Default XAMPP password (blank)
+$dbname = 'print_db'; // Updated to match your database
+$username = 'root';        
+$password = '';            
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
