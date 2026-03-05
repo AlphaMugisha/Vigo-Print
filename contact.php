@@ -1,5 +1,7 @@
 <?php
 // --- PHP FORM PROCESSING LOGIC ---
+require_once 'includes/db.php';
+
 $statusMsg = '';
 $statusClass = '';
 
@@ -7,26 +9,32 @@ if(isset($_POST['submit'])){
     $name = htmlspecialchars($_POST['name']);
     $email = htmlspecialchars($_POST['email']);
     $phone = htmlspecialchars($_POST['phone']);
-    $message = htmlspecialchars($_POST['message']);
+    $message = htmlspecialchars($_POST['message']); // This is the Project Details
     
     if(!empty($name) && !empty($email) && !empty($message)){
-        $toEmail = 'hello@vigoprint.rw'; 
-        $subject = 'New Print Project Request from ' . $name;
-        
-        $htmlContent = "<h2>New Quote Request</h2>
-                        <p><strong>Name:</strong> {$name}</p>
-                        <p><strong>Email:</strong> {$email}</p>
-                        <p><strong>Phone:</strong> {$phone}</p>
-                        <p><strong>Project Details:</strong><br/>{$message}</p>";
-        
-        $headers = "MIME-Version: 1.0\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8\r\n";
-        $headers .= "From: {$name} <{$email}>\r\n";
-        
-        if(mail($toEmail, $subject, $htmlContent, $headers)){
+        try {
+            // Save to Database Inbox
+            $stmt = $pdo->prepare("INSERT INTO contact_inbox (name, email, phone, project_details) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$name, $email, $phone, $message]);
+
+            // Optional: Still send the email notification
+            $toEmail = 'hello@vigoprint.rw'; 
+            $subject = 'New Print Project Request from ' . $name;
+            $htmlContent = "<h2>New Quote Request</h2>
+                            <p><strong>Name:</strong> {$name}</p>
+                            <p><strong>Email:</strong> {$email}</p>
+                            <p><strong>Phone:</strong> {$phone}</p>
+                            <p><strong>Project Details:</strong><br/>{$message}</p>";
+            
+            $headers = "MIME-Version: 1.0\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8\r\n";
+            $headers .= "From: {$name} <{$email}>\r\n";
+            
+            mail($toEmail, $subject, $htmlContent, $headers);
+
             $statusMsg = 'Sent successfully! We will contact you shortly.';
             $statusClass = 'alert-success';
-        } else {
+        } catch(PDOException $e) {
             $statusMsg = 'Submission failed, please try again.';
             $statusClass = 'alert-error';
         }
@@ -35,6 +43,9 @@ if(isset($_POST['submit'])){
         $statusClass = 'alert-error';
     }
 }
+
+// Fetch settings for the footer/contact info
+$settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +104,7 @@ if(isset($_POST['submit'])){
 
             <form action="" method="POST" class="contact-form">
                 <div class="form-group">
-                    <label>Company / Contact Name *</label>
+                    <label>Name:</label>
                     <input type="text" name="name" class="form-control" placeholder="e.g. Media Ltd." required>
                 </div>
                 <div class="form-group">
@@ -116,11 +127,11 @@ if(isset($_POST['submit'])){
 
         <div class="contact-info reveal reveal-right">
             <h3>Direct Contact</h3>
-            <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br>9 KN 59 Street, Nyarugenge, Kigali</div></div>
-            <div class="info-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+250 788 858 358</div></div>
+            <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br><?= $settings['address'] ?></div></div>
+            <div class="info-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+<?= htmlspecialchars($settings['whatsapp']) ?></div></div>
             
             <div class="map-container">
-                <iframe src="https://www.google.com/maps/search/vigo+print/@-1.9666298,30.1011831,15z?entry=ttu&g_ep=EgoyMDI2MDMwMS4xIKXMDSoASAFQAw%3D%3D" allowfullscreen="" loading="lazy"></iframe>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3987.502919429141!2d30.056024474251433!3d-1.9520858367203387!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dca429b6999999%3A0x8888888888888888!2sKigali!5e0!3m2!1sen!2srw!4v1700000000000" allowfullscreen="" loading="lazy"></iframe>
             </div>
         </div>
     </section>
@@ -130,7 +141,7 @@ if(isset($_POST['submit'])){
             <div class="footer-grid">
                 <div class="footer-about">
                     <a href="index.php" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
-                    <p>Rwanda's leading industrial printing facility, combining advanced European pre-press technology with high-volume offset printing capacity.</p>
+                    <p><?= htmlspecialchars($settings['footer_about']) ?></p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-linkedin-in"></i></a>
                         <a href="#"><i class="fab fa-instagram"></i></a>
@@ -151,13 +162,13 @@ if(isset($_POST['submit'])){
                 
                 <div class="footer-contact">
                     <h4>Contact & Visit</h4>
-                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Factory Location</strong><br>9 KN 59 Street, Nyarugenge<br>Kigali, Rwanda</div></div>
-                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+250 788 858 358</div></div>
-                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Hours</strong><br>Mon - Sat: 8:00 AM - 6:00 PM</div></div>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Factory Location</strong><br><?= $settings['address'] ?></div></div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+<?= htmlspecialchars($settings['whatsapp']) ?></div></div>
+                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Hours</strong><br><?= htmlspecialchars($settings['hours']) ?></div></div>
                 </div>
             </div>
             
-            <div class="footer-bottom">&copy; <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
+            <div class="footer-bottom">© <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
         </div>
     </footer>
 
