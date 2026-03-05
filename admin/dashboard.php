@@ -3,7 +3,6 @@
 session_start();
 require_once '../includes/db.php';
 
-// Security Lock: Only allowed for logged-in admins
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header("Location: login.php");
     exit;
@@ -11,8 +10,6 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $success_msg = '';
 $error_msg = '';
-
-// Determine which section is active from the URL sidebar links
 $section = isset($_GET['section']) ? $_GET['section'] : 'inbox';
 
 // --- HANDLE ADMIN CREDENTIAL UPDATES ---
@@ -23,31 +20,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_admin'])) {
     $confirm_password = $_POST['confirm_password'];
     $admin_user = $_SESSION['admin_username'];
 
-    // Fetch the current admin details from the database
     $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
     $stmt->execute([$admin_user]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // 1. Verify the current password first (Security Check!)
     if (password_verify($current_password, $user['password'])) {
-        
-        // 2. Check if they want to change the password
         if (!empty($new_password)) {
             if ($new_password === $confirm_password) {
-                // Hash the new password and update both username & password
                 $hashed_pw = password_hash($new_password, PASSWORD_DEFAULT);
                 $update = $pdo->prepare("UPDATE users SET username = ?, password = ? WHERE id = ?");
                 $update->execute([$new_username, $hashed_pw, $user['id']]);
-                $_SESSION['admin_username'] = $new_username; // Update active session
+                $_SESSION['admin_username'] = $new_username; 
                 $success_msg = "Username and Password updated successfully!";
             } else {
                 $error_msg = "Your new passwords do not match. Try again.";
             }
         } else {
-            // 3. Just update the username if the new password field was left blank
             $update = $pdo->prepare("UPDATE users SET username = ? WHERE id = ?");
             $update->execute([$new_username, $user['id']]);
-            $_SESSION['admin_username'] = $new_username; // Update active session
+            $_SESSION['admin_username'] = $new_username; 
             $success_msg = "Username updated successfully!";
         }
     } else {
@@ -60,7 +51,15 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
 $services = $pdo->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 $portfolio = $pdo->query("SELECT * FROM portfolio ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch Inbox and calculate UNREAD count
 $messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
+$unread_count = 0;
+foreach ($messages as $m) {
+    if (isset($m['is_read']) && $m['is_read'] == 0) {
+        $unread_count++;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +92,7 @@ $messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")-
         /* Card UI for Paragraphs and Items */
         .section-title { margin-bottom: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
         .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; border: 1px solid #eee; transition: opacity 0.3s; }
         .card-label { font-size: 11px; color: #25D366; text-transform: uppercase; font-weight: 800; margin-bottom: 10px; letter-spacing: 1px;}
         .card-content { font-size: 15px; line-height: 1.6; color: #444; margin-bottom: 20px; flex-grow: 1; }
         .card-footer { display: flex; gap: 10px; border-top: 1px solid #f0f0f0; padding-top: 15px; }
@@ -108,6 +107,7 @@ $messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")-
         .btn-delete { background: #fff; color: #e74c3c; border: 1px solid #e74c3c; }
         .btn-add { background: #25D366; color: white; padding: 12px 25px; flex: none; }
         .btn-whatsapp { background: #25D366; color: white; }
+        .btn-read { background: #f39c12; color: white; }
         
         img.preview-img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
     </style>
@@ -118,7 +118,7 @@ $messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")-
         <h2>VIGO PRINT</h2>
         <a href="?section=inbox" class="<?= $section == 'inbox' ? 'active' : '' ?>">
             <i class="fas fa-envelope"></i> Customer Inbox
-            <?php if(count($messages) > 0): ?><span class="inbox-badge"><?= count($messages) ?></span><?php endif; ?>
+            <?php if($unread_count > 0): ?><span class="inbox-badge"><?= $unread_count ?></span><?php endif; ?>
         </a>
         <a href="?section=top" class="<?= $section == 'top' ? 'active' : '' ?>"><i class="fas fa-home"></i> Welcome Banner</a>
         <a href="?section=about" class="<?= $section == 'about' ? 'active' : '' ?>"><i class="fas fa-info-circle"></i> About Us</a>
@@ -176,8 +176,18 @@ $messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")-
             <?php else: ?>
                 <div class="grid-cards" style="grid-template-columns: 1fr;">
                     <?php foreach ($messages as $m): ?>
-                    <div class="card" style="border-left: 5px solid #25D366;">
-                        <div class="card-label">Received: <?= date('M d, Y - H:i', strtotime($m['created_at'])) ?></div>
+                    <?php 
+                        $is_read = isset($m['is_read']) && $m['is_read'] == 1; 
+                        $border_color = $is_read ? '#ccc' : '#25D366';
+                        $opacity = $is_read ? '0.7' : '1';
+                    ?>
+                    <div class="card" style="border-left: 5px solid <?= $border_color ?>; opacity: <?= $opacity ?>;">
+                        <div class="card-label">
+                            Received: <?= date('M d, Y - H:i', strtotime($m['created_at'])) ?>
+                            <?php if (!$is_read): ?>
+                                <span style="background: #e74c3c; color: white; padding: 3px 6px; border-radius: 4px; margin-left: 10px; font-size: 10px;">NEW</span>
+                            <?php endif; ?>
+                        </div>
                         <div class="card-content">
                             <p><strong>Name:</strong> <?= htmlspecialchars($m['name']) ?></p>
                             <p><strong>Email:</strong> <?= htmlspecialchars($m['email']) ?></p>
@@ -188,11 +198,16 @@ $messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")-
                             </div>
                         </div>
                         <div class="card-footer">
+                            <?php if (!$is_read): ?>
+                                <a href="mark_read.php?id=<?= $m['id'] ?>" class="btn btn-read">
+                                    <i class="fas fa-check"></i> Mark Read
+                                </a>
+                            <?php endif; ?>
                             <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $m['phone']) ?>" target="_blank" class="btn btn-whatsapp">
-                                <i class="fab fa-whatsapp"></i> Reply via WhatsApp
+                                <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
                             <a href="mailto:<?= htmlspecialchars($m['email']) ?>" class="btn btn-edit">
-                                <i class="fas fa-envelope"></i> Reply via Email
+                                <i class="fas fa-envelope"></i> Email
                             </a>
                             <a href="delete_item.php?type=inbox&id=<?= $m['id'] ?>" class="btn btn-delete" onclick="return confirm('Delete this request permanently?')">
                                 <i class="fas fa-trash"></i> Delete
