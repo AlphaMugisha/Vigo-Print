@@ -81,6 +81,7 @@ if (isset($pdo)) {
             <a href="#" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
             <div class="menu-toggle" id="mobile-toggle"><i class="fas fa-bars"></i></div>
             <nav id="nav-menu">
+                <a href="index.php">Home</a>
                 <a href="index.php#services">Services</a>
                 <a href="index.php#about">About</a>
                 <a href="index.php#portfolio">Portfolio</a>
@@ -253,6 +254,7 @@ if (isset($pdo)) {
                 <div class="footer-links">
                     <h4>Quick Links</h4>
                     <ul>
+                        <li><a href="index.php">Home</a></li>
                         <li><a href="#services">Our Services</a></li>
                         <li><a href="#about">About Us</a></li>
                         <li><a href="#portfolio">Sample Work</a></li>
