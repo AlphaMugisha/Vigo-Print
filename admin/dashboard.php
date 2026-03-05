@@ -142,6 +142,23 @@ foreach ($messages as $m) {
     </style>
 </head>
 <body>
+        <div id="preloader">
+        <div class="preloader-content">
+            <div class="logo-float-wrapper">
+            <div class="preloader-logo">
+                <div class="preloader-logo-inner">🖨️</div>
+            </div>
+        </div>
+            
+            <div class="preloader-progress-wrapper">
+                <div class="preloader-progress-track">
+                    <div class="preloader-progress-fill"></div>
+                </div>
+            </div>
+            
+            <div class="preloader-text">Warming Up Press...</div>
+        </div>
+    </div>
 
     <div class="sidebar">
         <h2>VIGO <span>PRINT</span></h2>
@@ -236,6 +253,17 @@ foreach ($messages as $m) {
                             <div class="data-box">
                                 <?= nl2br(htmlspecialchars($m['project_details'])) ?>
                             </div>
+
+                            <div style="margin-top: 15px;">
+                                <?php if (!empty($m['artwork_url'])): ?>
+                                    <a href="../<?= htmlspecialchars($m['artwork_url']) ?>" download class="btn" style="background: var(--text-main); color: white; display: inline-flex; width: auto; padding: 8px 16px; border-radius: 8px;">
+                                        <i class="fas fa-file-download" style="margin-right: 8px;"></i> Download Attached Artwork
+                                    </a>
+                                <?php else: ?>
+                                    <span style="font-size: 12px; color: var(--text-sidebar); font-style: italic;"><i class="fas fa-times-circle"></i> No artwork attached</span>
+                                <?php endif; ?>
+                            </div>
+                            
                         </div>
                         <div class="card-footer">
                             <?php if (!$is_read): ?>

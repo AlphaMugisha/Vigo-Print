@@ -9,30 +9,33 @@ if(isset($_POST['submit'])){
     $name = htmlspecialchars($_POST['name']);
     $email = htmlspecialchars($_POST['email']);
     $phone = htmlspecialchars($_POST['phone']);
-    $message = htmlspecialchars($_POST['message']); // This is the Project Details
+    $message = htmlspecialchars($_POST['message']); // Project Details
     
+    // --- ARTWORK UPLOAD LOGIC ---
+    $artwork_path = null; // Default to null if they don't upload anything
+    
+    if (isset($_FILES['artwork']) && $_FILES['artwork']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = 'uploads/';
+        // Create folder if it doesn't exist
+        if (!is_dir($upload_dir)) { mkdir($upload_dir, 0777, true); }
+        
+        // Clean the filename and add a timestamp so files don't overwrite each other
+        $filename = time() . '_' . preg_replace("/[^a-zA-Z0-9.]/", "", basename($_FILES['artwork']['name']));
+        $target_file = $upload_dir . $filename;
+        
+        if (move_uploaded_file($_FILES['artwork']['tmp_name'], $target_file)) {
+            $artwork_path = $target_file; // e.g., "uploads/167890_design.pdf"
+        }
+    }
+    // ----------------------------
+
     if(!empty($name) && !empty($email) && !empty($message)){
         try {
-            // Save to Database Inbox
-            $stmt = $pdo->prepare("INSERT INTO contact_inbox (name, email, phone, project_details) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$name, $email, $phone, $message]);
+            // Save to Database Inbox (Now includes artwork_url)
+            $stmt = $pdo->prepare("INSERT INTO contact_inbox (name, email, phone, project_details, artwork_url) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$name, $email, $phone, $message, $artwork_path]);
 
-            // Optional: Still send the email notification
-            $toEmail = 'hello@vigoprint.rw'; 
-            $subject = 'New Print Project Request from ' . $name;
-            $htmlContent = "<h2>New Quote Request</h2>
-                            <p><strong>Name:</strong> {$name}</p>
-                            <p><strong>Email:</strong> {$email}</p>
-                            <p><strong>Phone:</strong> {$phone}</p>
-                            <p><strong>Project Details:</strong><br/>{$message}</p>";
-            
-            $headers = "MIME-Version: 1.0\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8\r\n";
-            $headers .= "From: {$name} <{$email}>\r\n";
-            
-            mail($toEmail, $subject, $htmlContent, $headers);
-
-            $statusMsg = 'Sent successfully! We will contact you shortly.';
+            $statusMsg = 'Quote Request Submitted Successfully! We will contact you shortly.';
             $statusClass = 'alert-success';
         } catch(PDOException $e) {
             $statusMsg = 'Submission failed, please try again.';
@@ -56,24 +59,17 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Quick style to make the file input look decent */
+        input[type="file"].form-control {
+            padding: 10px;
+            background: #fff;
+            border: 1px dashed #ccc;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body class="loading-lock">
-
-    <div id="preloader">
-        <div class="preloader-content">
-            <div class="logo-float-wrapper">
-                <div class="preloader-logo">
-                    <div class="preloader-logo-inner">🖨️</div>
-                </div>
-            </div>
-            <div class="preloader-progress-wrapper">
-                <div class="preloader-progress-track">
-                    <div class="preloader-progress-fill"></div>
-                </div>
-            </div>
-            <div class="preloader-text">Loading Contact Portal...</div>
-        </div>
-    </div>
 
     <header id="navbar" class="scrolled">
         <div class="nav-container">
@@ -91,7 +87,7 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
 
     <section class="contact-hero">
         <div class="hero-content reveal">
-            <h1>Let's Print Something Great Together!</h1>
+            <h1>Let's Print Something Great.</h1>
             <p>Reach out to our Kigali facility for high-volume commercial quotes.</p>
         </div>
     </section>
@@ -99,10 +95,10 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
     <section class="contact-section">
         <div class="contact-form-wrapper reveal reveal-left">
             <?php if(!empty($statusMsg)): ?>
-                <div class="alert <?php echo $statusClass; ?>"><?php echo $statusMsg; ?></div>
+                <div class="alert <?php echo $statusClass; ?>" style="background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 600;"><?php echo $statusMsg; ?></div>
             <?php endif; ?>
 
-            <form action="" method="POST" class="contact-form">
+            <form action="" method="POST" class="contact-form" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Name:</label>
                     <input type="text" name="name" class="form-control" placeholder="e.g. Media Ltd." required>
@@ -119,7 +115,13 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
                     <label>Project Details *</label>
                     <textarea name="message" class="form-control" placeholder="Quantity, paper type, etc..." required></textarea>
                 </div>
-                <button type="submit" name="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                
+                <div class="form-group">
+                    <label>Attach Artwork (PDF, PNG, JPG, ZIP) - Optional</label>
+                    <input type="file" name="artwork" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.zip">
+                </div>
+
+                <button type="submit" name="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
                     <i class="fas fa-paper-plane"></i> Submit Quote Request
                 </button>
             </form>
@@ -135,12 +137,11 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
             </div>
         </div>
     </section>
-
-    <footer class="reveal">
+     <footer class="reveal">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-about">
-                    <a href="index.php" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
+                    <a href="#" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
                     <p><?= htmlspecialchars($settings['footer_about']) ?></p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-linkedin-in"></i></a>
@@ -149,26 +150,24 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
                         <a href="#"><i class="fab fa-x-twitter"></i></a>
                     </div>
                 </div>
-                
                 <div class="footer-links">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="index.php#services">Our Services</a></li>
-                        <li><a href="index.php#about">Company Profile</a></li>
-                        <li><a href="index.php#portfolio">Sample Work</a></li>
-                        <li><a href="contact.php">Request Quote</a></li>
+                        <li><a href="index.php">Home</a></li>
+                        <li><a href="#services">Our Services</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#portfolio">Sample Work</a></li>
+                        <li><a href="admin/login.php" style="color: var(--accent-green);"><i class="fas fa-lock"></i> Admin Portal</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-contact">
                     <h4>Contact & Visit</h4>
-                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Factory Location</strong><br><?= $settings['address'] ?></div></div>
-                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+<?= htmlspecialchars($settings['whatsapp']) ?></div></div>
-                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Hours</strong><br><?= htmlspecialchars($settings['hours']) ?></div></div>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br><?= $settings['address'] ?></div></div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?></div></div>
+                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Production Hours</strong><br><?= htmlspecialchars($settings['hours']) ?></div></div>
                 </div>
             </div>
-            
-            <div class="footer-bottom">© <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
+            <div class="footer-bottom">&copy; <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
         </div>
     </footer>
 
