@@ -1,6 +1,12 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "vigo_db");
+$host = "localhost";
+$user = "root";
+$pass = "";
+$dbname = "viga_print_db";
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+
 if ($conn->connect_error) {
-    die("Database Connection Failed: " . $conn->connect_error);
+    die("Connection failed: " . $conn->connect_error);
 }
 ?>
