@@ -1,3 +1,49 @@
+<?php
+// includes/db.php must exist, or the page will crash. 
+// For now, we'll suppress errors if the DB isn't set up yet so you can see the structure.
+@include_once 'includes/db.php';
+
+// Initialize empty arrays/variables to prevent errors before the database is connected
+$settings = [
+    'whatsapp' => '250788858358',
+    'hero_video' => 'video.mp4',
+    'hero_badge' => 'ISO Standard Print Facility',
+    'hero_title' => 'Precision Industrial Printing in Kigali',
+    'hero_desc' => 'Empowering Rwandan businesses with high-volume, commercial-grade print production. From cutting-edge Ecoographix CTP plates to flawless Heidelberg Offset output.',
+    'about_img' => 'https://images.unsplash.com/photo-1598301257982-0cf014dabbcd?q=80&w=1000&auto=format&fit=crop',
+    'about_title' => 'Setting the Standard for Print Quality in Rwanda.',
+    'about_desc_1' => 'VIGO PRINT is more than just a print shop; we are an industrial-scale commercial printing partner. Operating out of the heart of Nyarugenge, Kigali, we have invested heavily in robust European printing machinery and advanced color-calibration software.',
+    'about_desc_2' => 'Whether you need 10,000 corporate brochures by Friday or structural packaging for a new product launch, our facility is equipped to handle strict deadlines without ever compromising on standard CMYK fidelity.',
+    'cta_title' => 'Have a High-Volume Print Project?',
+    'cta_desc' => 'Send us your artwork files today. Our pre-press team will review your requirements and provide a competitive quote within 24 hours.',
+    'footer_about' => "Rwanda's leading industrial printing facility, combining advanced European pre-press technology with high-volume offset printing capacity.",
+    'address' => '9 KN 59 Street, Nyarugenge<br>Kigali, Rwanda',
+    'hours' => 'Mon - Sat: 8:00 AM - 6:00 PM'
+];
+$services = [];
+$stats = [];
+$portfolio = [];
+$testimonials = [];
+
+// Once your DB is connected, these queries will pull the live data
+if (isset($pdo)) {
+    // Fetch site settings
+    $stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
+    if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { $settings = $row; }
+
+    // Fetch services
+    $services = $pdo->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fetch stats
+    $stats = $pdo->query("SELECT * FROM stats ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fetch portfolio
+    $portfolio = $pdo->query("SELECT * FROM portfolio ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Fetch testimonials
+    $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,24 +85,24 @@
                 <a href="index.php#about">About</a>
                 <a href="index.php#portfolio">Portfolio</a>
                 <a href="contact.php">Contact Us</a>
-                <a href="https://wa.me/250788858358" class="nav-btn">Get a Quote</a>
+                <a href="https://wa.me/<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?>" class="nav-btn">Get a Quote</a>
             </nav>
         </div>
     </header>
 
     <section class="hero">
         <video autoplay loop muted playsinline class="hero-video">
-            <source src="hero-video.mp4" type="video/mp4">
+            <source src="<?= htmlspecialchars($settings['hero_video'] ?? 'video.mp4') ?>" type="video/mp4">
         </video>
         
         <div class="hero-overlay"></div>
         <div class="hero-content reveal">
-            <span class="hero-badge reveal delay-1">ISO Standard Print Facility</span>
-            <h1 class="reveal delay-2">Precision Industrial Printing in Kigali</h1>
-            <p class="reveal delay-3">Empowering Rwandan businesses with high-volume, commercial-grade print production. From cutting-edge Ecoographix CTP plates to flawless Heidelberg Offset output.</p>
+            <span class="hero-badge reveal delay-1"><?= htmlspecialchars($settings['hero_badge']) ?></span>
+            <h1 class="reveal delay-2"><?= htmlspecialchars($settings['hero_title']) ?></h1>
+            <p class="reveal delay-3"><?= htmlspecialchars($settings['hero_desc']) ?></p>
             <div class="hero-buttons reveal delay-3">
                 <a href="#services" class="btn btn-primary">Explore Services</a>
-                <a href="https://wa.me/250788858358" class="btn btn-outline"><i class="fab fa-whatsapp"></i> Chat with an Expert</a>
+                <a href="https://wa.me/<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?>" class="btn btn-outline"><i class="fab fa-whatsapp"></i> Chat with an Expert</a>
             </div>
         </div>
     </section>
@@ -67,44 +113,55 @@
             <p>Comprehensive end-to-end industrial printing solutions tailored for commercial enterprises, publishers, and agencies.</p>
         </div>
         <div class="service-grid">
-            <div class="service-card reveal">
-                <div class="service-icon"><i class="fas fa-layer-group"></i></div>
-                <h3>Pre-Press & CTP</h3>
-                <p>State-of-the-art Ecoographix Computer-to-Plate (CTP) systems ensuring absolute pinpoint accuracy, sharp dot generation, and perfect registration before the ink even hits the paper.</p>
-            </div>
-            <div class="service-card reveal delay-1">
-                <div class="service-icon"><i class="fas fa-print"></i></div>
-                <h3>Offset Printing</h3>
-                <p>Powered by Heidelberg MO technology, we deliver unmatched color consistency and cost-efficiency for high-volume jobs like magazines, corporate profiles, and massive flyer runs.</p>
-            </div>
-            <div class="service-card reveal delay-2">
-                <div class="service-icon"><i class="fas fa-box-open"></i></div>
-                <h3>Packaging & Labels</h3>
-                <p>Custom die-cut packaging boxes, precision product labels, and commercial wrapping solutions designed to make your merchandise stand out on the retail shelf.</p>
-            </div>
-            <div class="service-card reveal delay-3">
-                <div class="service-icon"><i class="fas fa-book-open"></i></div>
-                <h3>Post-Press Finishing</h3>
-                <p>Professional binding (perfect, saddle-stitch, wire-O), die-cutting, matte/gloss lamination, and UV coating to give your printed materials a durable, premium tactile feel.</p>
-            </div>
+            <?php if (!empty($services)): ?>
+                <?php 
+                $delay = 0;
+                foreach ($services as $service): 
+                    $delayClass = $delay > 0 ? "delay-" . $delay : "";
+                ?>
+                <div class="service-card reveal <?= $delayClass ?>">
+                    <div class="service-icon"><i class="<?= htmlspecialchars($service['icon']) ?>"></i></div>
+                    <h3><?= htmlspecialchars($service['title']) ?></h3>
+                    <p><?= htmlspecialchars($service['description']) ?></p>
+                </div>
+                <?php 
+                    $delay++;
+                endforeach; 
+                ?>
+            <?php else: ?>
+                <div class="service-card reveal"><div class="service-icon"><i class="fas fa-layer-group"></i></div><h3>Pre-Press & CTP</h3><p>State-of-the-art Ecoographix...</p></div>
+            <?php endif; ?>
         </div>
     </section>
 
     <section id="about" class="about section-padding">
         <div class="container about-wrapper">
             <div class="about-img reveal reveal-left">
-                <img src="https://images.unsplash.com/photo-1598301257982-0cf014dabbcd?q=80&w=1000&auto=format&fit=crop" alt="Print Quality Control">
+                <img src="<?= htmlspecialchars($settings['about_img']) ?>" alt="Print Quality Control">
             </div>
             <div class="about-content reveal reveal-right">
-                <h2>Setting the Standard for Print Quality in Rwanda.</h2>
-                <p>VIGO PRINT is more than just a print shop; we are an industrial-scale commercial printing partner. Operating out of the heart of Nyarugenge, Kigali, we have invested heavily in robust European printing machinery and advanced color-calibration software.</p>
-                <p>Whether you need 10,000 corporate brochures by Friday or structural packaging for a new product launch, our facility is equipped to handle strict deadlines without ever compromising on standard CMYK fidelity.</p>
+                <h2><?= htmlspecialchars($settings['about_title']) ?></h2>
+                <p><?= htmlspecialchars($settings['about_desc_1']) ?></p>
+                <p><?= htmlspecialchars($settings['about_desc_2']) ?></p>
                 
                 <div class="stats-grid">
-                    <div class="stat-item reveal delay-1"><h4>10<span>+</span></h4><p>Years Industry Exp.</p></div>
-                    <div class="stat-item reveal delay-2"><h4>5,000<span>+</span></h4><p>Projects Delivered</p></div>
-                    <div class="stat-item reveal delay-3"><h4>24<span>/7</span></h4><p>Production Capacity</p></div>
-                    <div class="stat-item reveal delay-1"><h4>100<span>%</span></h4><p>Color Accuracy</p></div>
+                    <?php if (!empty($stats)): ?>
+                        <?php 
+                        $delay = 1;
+                        foreach ($stats as $stat): 
+                            $delayClass = "delay-" . $delay;
+                        ?>
+                        <div class="stat-item reveal <?= $delayClass ?>">
+                            <h4><?= htmlspecialchars($stat['number']) ?><span><?= htmlspecialchars($stat['symbol']) ?></span></h4>
+                            <p><?= htmlspecialchars($stat['label']) ?></p>
+                        </div>
+                        <?php 
+                            $delay = $delay >= 3 ? 1 : $delay + 1; // Loops delay 1,2,3 for visual effect
+                        endforeach; 
+                        ?>
+                    <?php else: ?>
+                        <div class="stat-item reveal delay-1"><h4>10<span>+</span></h4><p>Years Industry Exp.</p></div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -116,31 +173,28 @@
             <p>A glimpse into the commercial products we manufacture daily.</p>
         </div>
         <div class="portfolio-grid">
-            <div class="portfolio-item reveal">
-                <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Corporate Reports">
-                <div class="portfolio-overlay"><h4>Corporate Annual Reports</h4><p>Perfect Bound & Spot UV</p></div>
-            </div>
-            <div class="portfolio-item reveal delay-1">
-                <img src="https://images.unsplash.com/photo-1589939705384-5185137a7f0f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Retail Packaging">
-                <div class="portfolio-overlay"><h4>Retail Packaging Boxes</h4><p>Die-Cut & Matte Laminated</p></div>
-            </div>
-            <div class="portfolio-item reveal delay-2">
-                <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Magazines">
-                <div class="portfolio-overlay"><h4>Commercial Magazines</h4><p>High-Volume Offset Printing</p></div>
-            </div>
-            
-            <div class="portfolio-item hidden-work extra-items">
-                <img src="https://images.unsplash.com/photo-1505322022379-7c3353ee6291?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Product Labels">
-                <div class="portfolio-overlay"><h4>Product Labels</h4><p>Adhesive & Water Resistant</p></div>
-            </div>
-            <div class="portfolio-item hidden-work extra-items">
-                <img src="https://images.unsplash.com/photo-1581822261290-991b38693d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Marketing Brochures">
-                <div class="portfolio-overlay"><h4>Marketing Brochures</h4><p>Tri-Fold Gloss Finish</p></div>
-            </div>
-            <div class="portfolio-item hidden-work extra-items">
-                <img src="https://images.unsplash.com/photo-1601055903647-8f55781a5332?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="CTP Plates">
-                <div class="portfolio-overlay"><h4>Ecoographix Plates</h4><p>B2B Pre-Press Services</p></div>
-            </div>
+            <?php if (!empty($portfolio)): ?>
+                <?php 
+                $index = 0;
+                foreach ($portfolio as $item): 
+                    $delay = $index % 3;
+                    $delayClass = $delay > 0 ? "delay-" . $delay : "";
+                    $hiddenClass = $index >= 3 ? "hidden-work extra-items" : "";
+                ?>
+                <div class="portfolio-item <?= $hiddenClass ?> reveal <?= $delayClass ?>">
+                    <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
+                    <div class="portfolio-overlay">
+                        <h4><?= htmlspecialchars($item['title']) ?></h4>
+                        <p><?= htmlspecialchars($item['subtitle']) ?></p>
+                    </div>
+                </div>
+                <?php 
+                    $index++;
+                endforeach; 
+                ?>
+            <?php else: ?>
+                 <div class="portfolio-item reveal"><img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Fallback"><div class="portfolio-overlay"><h4>Connect DB to see portfolio</h4><p>Setup needed</p></div></div>
+            <?php endif; ?>
         </div>
         <div class="text-center reveal" style="margin-top: 50px;">
             <button class="btn btn-primary" id="loadMoreBtn" onclick="togglePortfolio()">View More Projects</button>
@@ -149,9 +203,9 @@
 
     <section class="cta-section section-padding reveal">
         <div class="container cta-content">
-            <h2>Have a High-Volume Print Project?</h2>
-            <p>Send us your artwork files today. Our pre-press team will review your requirements and provide a competitive quote within 24 hours.</p>
-            <a href="https://wa.me/250788858358" class="btn btn-primary"><i class="fas fa-file-invoice"></i> Request a Custom Quote</a>
+            <h2><?= htmlspecialchars($settings['cta_title']) ?></h2>
+            <p><?= htmlspecialchars($settings['cta_desc']) ?></p>
+            <a href="https://wa.me/<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?>" class="btn btn-primary"><i class="fas fa-file-invoice"></i> Request a Custom Quote</a>
         </div>
     </section>
 
@@ -161,21 +215,25 @@
             <p>Trusted by Kigali's top brands, agencies, and institutions.</p>
         </div>
         <div class="reviews-track reveal delay-1">
-            <div class="review-card">
-                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="review-text">"Vigo Print handles all our FMCG packaging labels. Their Heidelberg press outputs colors that perfectly match our international brand guidelines. Highly recommended."</p>
-                <div class="reviewer"><div class="reviewer-avatar">JA</div><div class="reviewer-info"><h5>Jean-Luc A.</h5><p>Procurement, Juice Co. Rwanda</p></div></div>
-            </div>
-            <div class="review-card">
-                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="review-text">"We use their CTP services daily for our agency. The Ecoographix plates they produce are incredibly precise and never fail on our own presses."</p>
-                <div class="reviewer"><div class="reviewer-avatar">MK</div><div class="reviewer-info"><h5>Moses K.</h5><p>Production Manager</p></div></div>
-            </div>
-            <div class="review-card">
-                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="review-text">"Delivered 10,000 perfect-bound annual reports in just 4 days. The lamination and paper quality was premium, and the pricing was the best in Kigali."</p>
-                <div class="reviewer"><div class="reviewer-avatar">DN</div><div class="reviewer-info"><h5>Diane N.</h5><p>Corporate Communications</p></div></div>
-            </div>
+            <?php if (!empty($testimonials)): ?>
+                <?php foreach ($testimonials as $review): ?>
+                <div class="review-card">
+                    <div class="stars">
+                        <?php for($i=0; $i<$review['stars']; $i++) echo '<i class="fas fa-star"></i>'; ?>
+                    </div>
+                    <p class="review-text">"<?= htmlspecialchars($review['text']) ?>"</p>
+                    <div class="reviewer">
+                        <div class="reviewer-avatar"><?= htmlspecialchars($review['avatar_initials']) ?></div>
+                        <div class="reviewer-info">
+                            <h5><?= htmlspecialchars($review['name']) ?></h5>
+                            <p><?= htmlspecialchars($review['position']) ?></p>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                 <div class="review-card"><p class="review-text">"Connect DB to see reviews."</p></div>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -184,7 +242,7 @@
             <div class="footer-grid">
                 <div class="footer-about">
                     <a href="#" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
-                    <p>Rwanda's leading industrial printing facility, combining advanced European pre-press technology with high-volume offset printing capacity.</p>
+                    <p><?= htmlspecialchars($settings['footer_about']) ?></p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-linkedin-in"></i></a>
                         <a href="#"><i class="fab fa-instagram"></i></a>
@@ -193,19 +251,19 @@
                     </div>
                 </div>
                 <div class="footer-links">
-    <h4>Quick Links</h4>
-    <ul>
-        <li><a href="#services">Our Services</a></li>
-        <li><a href="#about">About Us</a></li>
-        <li><a href="#portfolio">Sample Work</a></li>
-        <li><a href="login.php" style="color: var(--accent-green);"><i class="fas fa-lock"></i> Admin Portal</a></li>
-    </ul>
-</div>
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#services">Our Services</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#portfolio">Sample Work</a></li>
+                        <li><a href="admin/login.php" style="color: var(--accent-green);"><i class="fas fa-lock"></i> Admin Portal</a></li>
+                    </ul>
+                </div>
                 <div class="footer-contact">
                     <h4>Contact & Visit</h4>
-                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br>9 KN 59 Street, Nyarugenge<br>Kigali, Rwanda</div></div>
-                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+250 788 858 358</div></div>
-                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Production Hours</strong><br>Mon - Sat: 8:00 AM - 6:00 PM</div></div>
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br><?= $settings['address'] ?></div></div>
+                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?></div></div>
+                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Production Hours</strong><br><?= htmlspecialchars($settings['hours']) ?></div></div>
                 </div>
             </div>
             <div class="footer-bottom">&copy; <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
