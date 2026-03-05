@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $success_msg = '';
 // Determine which section is active from the URL sidebar links
-$section = isset($_GET['section']) ? $_GET['section'] : 'top';
+$section = isset($_GET['section']) ? $_GET['section'] : 'inbox';
 
 // --- FETCH DATA FOR DISPLAY ---
 // Site settings (Banner, About, Contact)
@@ -22,6 +22,8 @@ $services = $pdo->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO:
 $portfolio = $pdo->query("SELECT * FROM portfolio ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 // Client reviews (using the testimonials table)
 $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+// Quote Requests (Inbox)
+$messages = $pdo->query("SELECT * FROM contact_inbox ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,6 +43,9 @@ $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetch
         .sidebar a:hover, .sidebar a.active { background: #222; color: #25D366; }
         .sidebar a i { margin-right: 12px; width: 20px; text-align: center; }
         
+        /* Inbox Badge */
+        .inbox-badge { background: #e74c3c; color: white; border-radius: 50%; padding: 2px 7px; font-size: 11px; float: right; margin-top: 2px; }
+
         /* Main Dashboard Area */
         .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); box-sizing: border-box; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
@@ -59,6 +64,7 @@ $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetch
         .btn-edit { background: #f0f0f0; color: #333; }
         .btn-delete { background: #fff; color: #e74c3c; border: 1px solid #e74c3c; }
         .btn-add { background: #25D366; color: white; padding: 12px 25px; flex: none; }
+        .btn-whatsapp { background: #25D366; color: white; }
         
         img.preview-img { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
     </style>
@@ -67,6 +73,10 @@ $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetch
 
     <div class="sidebar">
         <h2>VIGO PRINT</h2>
+        <a href="?section=inbox" class="<?= $section == 'inbox' ? 'active' : '' ?>">
+            <i class="fas fa-envelope"></i> Customer Inbox
+            <?php if(count($messages) > 0): ?><span class="inbox-badge"><?= count($messages) ?></span><?php endif; ?>
+        </a>
         <a href="?section=top" class="<?= $section == 'top' ? 'active' : '' ?>"><i class="fas fa-home"></i> Welcome Banner</a>
         <a href="?section=about" class="<?= $section == 'about' ? 'active' : '' ?>"><i class="fas fa-info-circle"></i> About Us</a>
         <a href="?section=services" class="<?= $section == 'services' ? 'active' : '' ?>"><i class="fas fa-layer-group"></i> Services</a>
@@ -78,6 +88,41 @@ $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetch
 
     <div class="main-content">
         
+        <?php if ($section == 'inbox'): ?>
+        <div class="section-title"><h2>Customer Quote Requests</h2></div>
+        <?php if (empty($messages)): ?>
+            <div class="card"><p>No quote requests received yet.</p></div>
+        <?php else: ?>
+            <div class="grid-cards" style="grid-template-columns: 1fr;">
+                <?php foreach ($messages as $m): ?>
+                <div class="card" style="border-left: 5px solid #25D366;">
+                    <div class="card-label">Received: <?= date('M d, Y - H:i', strtotime($m['created_at'])) ?></div>
+                    <div class="card-content">
+                        <p><strong>Name:</strong> <?= htmlspecialchars($m['name']) ?></p>
+                        <p><strong>Email:</strong> <?= htmlspecialchars($m['email']) ?></p>
+                        <p><strong>Phone:</strong> <?= htmlspecialchars($m['phone']) ?></p>
+                        <p><strong>Project Details:</strong></p>
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; font-style: italic;">
+                            <?= nl2br(htmlspecialchars($m['project_details'])) ?>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $m['phone']) ?>" target="_blank" class="btn btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i> Reply via WhatsApp
+                        </a>
+                        <a href="mailto:<?= htmlspecialchars($m['email']) ?>" class="btn btn-edit">
+                            <i class="fas fa-envelope"></i> Reply via Email
+                        </a>
+                        <a href="delete_item.php?type=inbox&id=<?= $m['id'] ?>" class="btn btn-delete" onclick="return confirm('Delete this request permanently?')">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        <?php endif; ?>
+
         <?php if ($section == 'top'): ?>
         <div class="section-title"><h2>Welcome Banner Paragraphs</h2></div>
         <div class="grid-cards">

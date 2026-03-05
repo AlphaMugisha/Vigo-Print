@@ -91,7 +91,7 @@ $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::
 
     <section class="contact-hero">
         <div class="hero-content reveal">
-            <h1>Let's Print Something Great.</h1>
+            <h1>Let's Print Something Great Together!</h1>
             <p>Reach out to our Kigali facility for high-volume commercial quotes.</p>
         </div>
     </section>
