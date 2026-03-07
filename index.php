@@ -55,6 +55,12 @@ if (isset($pdo)) {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        .hidden-work {
+            display: none !important;
+        }
+    </style>
 </head>
 <body class="loading-lock">
 
@@ -180,7 +186,7 @@ if (isset($pdo)) {
                 foreach ($portfolio as $item): 
                     $delay = $index % 3;
                     $delayClass = $delay > 0 ? "delay-" . $delay : "";
-                    $hiddenClass = $index >= 3 ? "hidden-work extra-items" : "";
+                    $hiddenClass = $index >= 3 ? "hidden-work extra-items" : "extra-items-visible"; // Mark extras
                 ?>
                 <div class="portfolio-item <?= $hiddenClass ?> reveal <?= $delayClass ?>">
                     <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
@@ -197,16 +203,19 @@ if (isset($pdo)) {
                  <div class="portfolio-item reveal"><img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Fallback"><div class="portfolio-overlay"><h4>Connect DB to see portfolio</h4><p>Setup needed</p></div></div>
             <?php endif; ?>
         </div>
+        
+        <?php if (!empty($portfolio) && count($portfolio) > 3): ?>
         <div class="text-center reveal" style="margin-top: 50px;">
             <button class="btn btn-primary" id="loadMoreBtn" onclick="togglePortfolio()">View More Projects</button>
         </div>
+        <?php endif; ?>
     </section>
 
     <section class="cta-section section-padding reveal">
         <div class="container cta-content">
             <h2><?= htmlspecialchars($settings['cta_title']) ?></h2>
             <p><?= htmlspecialchars($settings['cta_desc']) ?></p>
-            <a href="https://wa.me/<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?>" class="btn btn-primary"><i class="fas fa-file-invoice"></i> Request a Custom Quote</a>
+            <a href="contact.php" class="btn btn-primary"><i class="fas fa-file-invoice"></i> Request a Custom Quote</a>
         </div>
     </section>
 
@@ -273,5 +282,32 @@ if (isset($pdo)) {
     </footer>
 
     <script src="script.js"></script>
+
+    <script>
+        function togglePortfolio() {
+            const extraItems = document.querySelectorAll('.extra-items');
+            const btn = document.getElementById('loadMoreBtn');
+            
+            // Check if items are currently hidden
+            let isHidden = extraItems[0].classList.contains('hidden-work');
+
+            extraItems.forEach(item => {
+                if (isHidden) {
+                    item.classList.remove('hidden-work');
+                } else {
+                    item.classList.add('hidden-work');
+                }
+            });
+
+            // Update button text and scroll behavior
+            if (isHidden) {
+                btn.innerHTML = 'View Less Projects';
+            } else {
+                btn.innerHTML = 'View More Projects';
+                // Scroll smoothly back up to the portfolio section when closing
+                document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
 </body>
 </html>
