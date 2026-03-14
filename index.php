@@ -1,6 +1,5 @@
 <?php
 // includes/db.php must exist, or the page will crash. 
-// For now, we'll suppress errors if the DB isn't set up yet so you can see the structure.
 @include_once 'includes/db.php';
 
 // Initialize empty arrays/variables to prevent errors before the database is connected
@@ -9,10 +8,10 @@ $settings = [
     'hero_video' => 'video.mp4',
     'hero_badge' => 'ISO Standard Print Facility',
     'hero_title' => 'Precision Industrial Printing in Kigali',
-    'hero_desc' => 'Empowering Rwandan businesses with high-volume, commercial-grade print production. From cutting-edge Ecoographix CTP plates to flawless Heidelberg Offset output.',
+    'hero_desc' => 'Empowering Rwandan businesses with high-volume, commercial-grade print production.',
     'about_img' => 'https://images.unsplash.com/photo-1598301257982-0cf014dabbcd?q=80&w=1000&auto=format&fit=crop',
     'about_title' => 'Setting the Standard for Print Quality in Rwanda.',
-    'about_desc_1' => 'VIGO PRINT is more than just a print shop; we are an industrial-scale commercial printing partner. Operating out of the heart of Nyarugenge, Kigali, we have invested heavily in robust European printing machinery and advanced color-calibration software.',
+    'about_desc_1' => 'VIGO PRINT is more than just a print shop; we are an industrial-scale commercial printing partner.',
     'about_desc_2' => 'Whether you need 10,000 corporate brochures by Friday or structural packaging for a new product launch, our facility is equipped to handle strict deadlines without ever compromising on standard CMYK fidelity.',
     'cta_title' => 'Have a High-Volume Print Project?',
     'cta_desc' => 'Send us your artwork files today. Our pre-press team will review your requirements and provide a competitive quote within 24 hours.',
@@ -27,75 +26,17 @@ $testimonials = [];
 
 // Once your DB is connected, these queries will pull the live data
 if (isset($pdo)) {
-    // Fetch site settings
     $stmt = $pdo->query("SELECT * FROM site_settings WHERE id = 1");
     if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { $settings = $row; }
-
-    // Fetch services
     $services = $pdo->query("SELECT * FROM services ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Fetch stats
     $stats = $pdo->query("SELECT * FROM stats ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Fetch portfolio
     $portfolio = $pdo->query("SELECT * FROM portfolio ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Fetch testimonials
     $testimonials = $pdo->query("SELECT * FROM testimonials ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
 }
+
+// === BRING IN THE HEADER ===
+include 'header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIGO PRINT | Premium Industrial Printing in Kigali</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
-    
-    <style>
-        .hidden-work {
-            display: none !important;
-        }
-    </style>
-</head>
-<body class="loading-lock">
-
-    <div id="preloader">
-        <div class="preloader-content">
-            <div class="logo-float-wrapper">
-            <div class="preloader-logo">
-                <div class="preloader-logo-inner">🖨️</div>
-            </div>
-        </div>
-            
-            <div class="preloader-progress-wrapper">
-                <div class="preloader-progress-track">
-                    <div class="preloader-progress-fill"></div>
-                </div>
-            </div>
-            
-            <div class="preloader-text">Warming Up Press...</div>
-        </div>
-    </div>
-
-    <header id="navbar">
-        <div class="nav-container">
-            <a href="#" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
-            <div class="menu-toggle" id="mobile-toggle"><i class="fas fa-bars"></i></div>
-            <nav id="nav-menu">
-                <a href="index.php">Home</a>
-                <a href="index.php#services">Services</a>
-                <a href="index.php#about">About</a>
-                <a href="index.php#portfolio">Portfolio</a>
-                <a href="contact.php">Contact Us</a>
-                <a href="https://wa.me/<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?>" class="nav-btn">Get a Quote</a>
-            </nav>
-        </div>
-    </header>
 
     <section class="hero">
         <video autoplay loop muted playsinline class="hero-video">
@@ -163,7 +104,7 @@ if (isset($pdo)) {
                             <p><?= htmlspecialchars($stat['label']) ?></p>
                         </div>
                         <?php 
-                            $delay = $delay >= 3 ? 1 : $delay + 1; // Loops delay 1,2,3 for visual effect
+                            $delay = $delay >= 3 ? 1 : $delay + 1;
                         endforeach; 
                         ?>
                     <?php else: ?>
@@ -186,7 +127,7 @@ if (isset($pdo)) {
                 foreach ($portfolio as $item): 
                     $delay = $index % 3;
                     $delayClass = $delay > 0 ? "delay-" . $delay : "";
-                    $hiddenClass = $index >= 3 ? "hidden-work extra-items" : "extra-items-visible"; // Mark extras
+                    $hiddenClass = $index >= 3 ? "hidden-work extra-items" : "extra-items-visible"; 
                 ?>
                 <div class="portfolio-item <?= $hiddenClass ?> reveal <?= $delayClass ?>">
                     <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
@@ -247,67 +188,7 @@ if (isset($pdo)) {
         </div>
     </section>
 
-    <footer class="reveal">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-about">
-                    <a href="#" class="logo"><span class="vigo">VIGO</span> <span class="print">PRINT</span></a>
-                    <p><?= htmlspecialchars($settings['footer_about']) ?></p>
-                    <div class="social-icons">
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-x-twitter"></i></a>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="index.php">Home</a></li>
-                        <li><a href="#services">Our Services</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#portfolio">Sample Work</a></li>
-                        <li><a href="admin/login.php" style="color: var(--accent-green);"><i class="fas fa-lock"></i> Admin Portal</a></li>
-                    </ul>
-                </div>
-                <div class="footer-contact">
-                    <h4>Contact & Visit</h4>
-                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i><div><strong>Head Office & Factory</strong><br><?= $settings['address'] ?></div></div>
-                    <div class="contact-item"><i class="fas fa-phone-alt"></i><div><strong>Phone / WhatsApp</strong><br>+<?= htmlspecialchars($settings['whatsapp'] ?? '250788858358') ?></div></div>
-                    <div class="contact-item"><i class="fas fa-clock"></i><div><strong>Production Hours</strong><br><?= htmlspecialchars($settings['hours']) ?></div></div>
-                </div>
-            </div>
-            <div class="footer-bottom">&copy; <?php echo date("Y"); ?> VIGO PRINT. Designed for Industrial Excellence. All Rights Reserved.</div>
-        </div>
-    </footer>
-
-    <script src="script.js"></script>
-
-    <script>
-        function togglePortfolio() {
-            const extraItems = document.querySelectorAll('.extra-items');
-            const btn = document.getElementById('loadMoreBtn');
-            
-            // Check if items are currently hidden
-            let isHidden = extraItems[0].classList.contains('hidden-work');
-
-            extraItems.forEach(item => {
-                if (isHidden) {
-                    item.classList.remove('hidden-work');
-                } else {
-                    item.classList.add('hidden-work');
-                }
-            });
-
-            // Update button text and scroll behavior
-            if (isHidden) {
-                btn.innerHTML = 'View Less Projects';
-            } else {
-                btn.innerHTML = 'View More Projects';
-                // Scroll smoothly back up to the portfolio section when closing
-                document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-    </script>
-</body>
-</html>
+<?php 
+// === BRING IN THE FOOTER ===
+include 'footer.php'; 
+?>
