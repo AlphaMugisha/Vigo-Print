@@ -46,7 +46,7 @@ if(isset($_POST['submit'])){
         $statusClass = 'alert-error';
     }
 }
-
+include 'preloader.php';
 // Fetch settings for the footer/contact info
 $settings = $pdo->query("SELECT * FROM site_settings WHERE id = 1")->fetch(PDO::FETCH_ASSOC);
 ?>
